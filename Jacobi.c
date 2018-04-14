@@ -15,6 +15,7 @@ void pgcd(mpz_t res, mpz_t a, mpz_t b){
 	mpz_mod(res, a, b);
 	if(mpz_cmp_ui(res, 0) != 0)
 		pgcd(res, b, res);
+	mpz_set(res, b);
 }
 
 int etape2(mpz_t m, mpz_t n){
