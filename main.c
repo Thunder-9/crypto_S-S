@@ -6,28 +6,30 @@
 
 int solovay_strassen(mpz_t n, int k){
 	//Initialisation
-	mpz_t rand_num, sqr, e, tmp_n1, tmp_n3;
+	mpz_t rand_num, sqr, e, tmp_n1, tmp_n3,tmp_n,tmp_r;
 	gmp_randstate_t rand;
 	int r;
 	mpz_init(rand_num);
 	mpz_init(sqr);
 	mpz_init(e);
+	mpz_init(tmp_n);
 	mpz_init(tmp_n1);
 	mpz_init(tmp_n3);
+	mpz_init(tmp_r);
 	gmp_randinit_default(rand);
-	
-	mpz_sub_ui(tmp_n1, n, 1);
-	mpz_div_ui(e, tmp_n1, 2);
-	mpz_sub_ui(tmp_n3, n, 3);
-
 	for (int i = 0; i < k;i++){
+		mpz_set(tmp_n,n);
+		mpz_sub_ui(tmp_n1, n, 1);
+		mpz_div_ui(e, tmp_n1, 2);
+		mpz_sub_ui(tmp_n3, n, 3);
 		//rand_num = rand(2, n-1)
 		mpz_urandomm(rand_num, rand, tmp_n3);
 		mpz_add_ui(rand_num, rand_num, 2);
-		r = jacobi(rand_num, n);
+		mpz_set(tmp_r,rand_num);
+		r = jacobi(tmp_r, tmp_n);
 		//a^(n-1)/2 mod n != 1 || != n-1
 		square_and_mult(sqr, rand_num, n, e);
-		if(r == 0 || (mpz_cmp_ui(sqr, 1) != 0) || (mpz_cmp(sqr, tmp_n1) != 0)){
+		if(r == 0 ||    (r==1 && (mpz_cmp_ui(sqr, 1) != 0)) || (r==-1 &&(mpz_cmp(sqr, tmp_n1) != 0))){
 			mpz_clear(sqr);
 			mpz_clear(rand_num);
 			mpz_clear(e);
@@ -54,3 +56,4 @@ int main(int argc, char** argv){
 	mpz_clear(a);
 	return 0;
 }
+	
