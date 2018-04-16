@@ -3,34 +3,53 @@
 #include <stdlib.h>
 #include "Jacobi.h"
 
-// calcul du pgcd(a,b) récursivement
-void pgcd(mpz_t res, mpz_t a, mpz_t b){
-	//calcul a mod b et met le résultat dans a
-	//si a mod b == 0, le pgcd vaut b
-	//sinon appel récursif de la fonction pgcd(b, a mod b)
-	if(mpz_cmp_ui(b, 0) == 0){
-		perror("calcul du pgcd par zéro\n");
-		exit(1);
-	}
-	mpz_mod(res, a, b);
-	if(mpz_cmp_ui(res, 0) != 0)
-		pgcd(res, b, res);
-	mpz_set(res, b);
+void pgcd(mpz_t res, mpz_t n, mpz_t d){
+	//Initialisation
+	mpz_t tmp_n, tmp_d;
+	mpz_init(tmp_n);
+	mpz_init(tmp_d);
+	mpz_set(tmp_n, n);
+	mpz_set(tmp_d, d);
+	// Calcul du pgcd avec la propriété pgcd(n,d) = pgcd(d, n mod d)
+	do{
+		mpz_mod(res, tmp_n, tmp_d);
+		mpz_set(tmp_n, tmp_d);
+		mpz_set(tmp_d, res);
+
+	}while(mpz_cmp_ui(res,0) != 0);
+	mpz_set(res, tmp_n);
+	mpz_clear(tmp_n);
+	mpz_clear(tmp_d);
 }
 
 int etape2(mpz_t m, mpz_t n){
+	mpz_t tmp;
+	int nb_pow = 0; //le nombre de puissance de 2 par lequel on peut décomposer m
+	mpz_init(tmp);
+	while(mpz_mod_ui(tmp, m, 2) == 0){
+		mpz_cdiv_q_ui(m, m, 2);
+		//m = q dans div euclidienne de m | 2
+		nb_pow++;
+	}
+	if((mpz_mod_ui(tmp, n, 8) == 3 || mpz_mod_ui(tmp, n, 8) == 5) && nb_pow%2 == 1){
+		mpz_clear(tmp);
+		return -1;
+	}
+	mpz_clear(tmp);
 	return 1;
 }
 
-int jacobi(mpz_t n, mpz_t m){
+int jacobi(mpz_t m, mpz_t n){
 	//m=m mod m   etape 1
 	int sign = 1; //le signe de jacobi pour l'étape 2
 	mpz_t tmp;
 	mpz_init(tmp);
 	mpz_mod(m,m,n);
+	gmp_printf("(%Zd / %Zd)\n", m, n);
 	//étape 2
 	if(mpz_mod_ui(tmp,m,2)==0){
 		sign =  etape2(m,n);
+		printf("etape2\n");
 	}
 	//etape 3
 	//si m == 1 jacobi = 1
@@ -46,13 +65,15 @@ int jacobi(mpz_t n, mpz_t m){
 	}
 	//étape 4
 	//rappel récursivement la fonction jacobi en inversant n et m
-	if ((mpz_mod_ui(tmp,n,4) == 0) || (mpz_mod_ui(tmp,m,4) == 0)){ //etape 4 recursive avec inversement
+	if ((mpz_mod_ui(tmp,n,4) == 1) || (mpz_mod_ui(tmp,m,4) == 1)){ //etape 4 recursive avec inversement
 		mpz_clear(tmp);	
-		return sign*jacobi(m,n);
+		printf("etape4 et prop6 -> 1\n");
+		return sign*jacobi(n,m);
 	}
 	else {
 		mpz_clear(tmp);	
-		return -1*sign*jacobi(m,n);
+		printf("etape4 et prop6 -> -1\n");
+		return -1*sign*jacobi(n,m);
 	}
 }
 		

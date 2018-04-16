@@ -2,9 +2,9 @@
 #define JACOBI_H
 #include <gmp.h>
 
-	int jacobi(mpz_t n, mpz_t m);
-	void pgcd(mpz_t res, mpz_t a, mpz_t b);
-	int etape2 (mpz_t n, mpz_t m);  
+	int jacobi(mpz_t m, mpz_t n);
+	void pgcd(mpz_t res, mpz_t n, mpz_t d);
+	int etape2 (mpz_t m, mpz_t n);  
 
 
 
