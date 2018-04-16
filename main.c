@@ -36,6 +36,8 @@ int solovay_strassen(mpz_t n, int k){
 			mpz_clear(tmp_n1);
 			mpz_clear(tmp_n3);
 			gmp_randclear(rand);
+			mpz_clear(tmp_r);
+			mpz_clear(tmp_n);
 		       	return 0;
 		}
 	}
@@ -44,7 +46,9 @@ int solovay_strassen(mpz_t n, int k){
 	mpz_clear(e);	
 	mpz_clear(tmp_n1);	
 	mpz_clear(tmp_n3);
-	gmp_randclear(rand);	
+	gmp_randclear(rand);
+	mpz_clear(tmp_r);
+	mpz_clear(tmp_n);	
 	return 1;
 }
 
