@@ -1,8 +1,5 @@
 CFLAGS =-Wall -g -c
 
-run: compil
-	./crypto_s-s
-
 compil: Jacobi.o Sqm.o main.o
 	gcc -Wall -o crypto_s-s *.o -lgmp
 

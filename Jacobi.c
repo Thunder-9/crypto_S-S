@@ -54,19 +54,22 @@ int etape2(mpz_t m, mpz_t n){
 
 /* Calcule le symbole de Jacobi
  * m et n sont les entiers qui compose le symbole de Jacobi
- * La fonction renvoie la valeur du symbole de Jacobi 
+ * La fonction renvoie la valeur du symbole de Jacobi
+ * Attention m et n sont modifiés par la fonction. 
  * */
 int jacobi(mpz_t m, mpz_t n){
 	//Initialisation
-
 	int sign = 1; //le signe de jacobi pour l'étape 2
 	mpz_t tmp;
 	mpz_init(tmp);
+
 	//m=m mod m   etape 1
 	mpz_mod(m,m,n);
+	
 	//étape 2
 	if(mpz_mod_ui(tmp,m,2)==0)
 		sign =  etape2(m,n);
+	
 	//etape 3
 	//si m == 1 jacobi = 1
 	if (mpz_cmp_ui(m,1)==0){
@@ -79,6 +82,7 @@ int jacobi(mpz_t m, mpz_t n){
 		mpz_clear(tmp);	
 		return 0;
 	}
+	
 	//étape 4
 	//rappel récursivement la fonction jacobi en inversant n et m
 	if ((mpz_mod_ui(tmp,n,4) == 1) || (mpz_mod_ui(tmp,m,4) == 1)){
