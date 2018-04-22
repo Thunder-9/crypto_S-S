@@ -25,38 +25,41 @@ int solovay_strassen(mpz_t n, int k){
 	int r;
 	mpz_inits(rand_num, sqr, e, tmp_n, tmp_n1, tmp_n3, tmp_r, NULL);
 	gmp_randinit_default(rand);
-	mpz_sub_ui(tmp_n1, n, 1);
-	mpz_sub_ui(tmp_n3, n, 3);
-	mpz_div_ui(e, tmp_n1, 2);
+	mpz_sub_ui(tmp_n1, n, 1); // tmp_n1 <-  n-1
+	mpz_sub_ui(tmp_n3, n, 3); // tmp_n3 <-  n-3
+	mpz_div_ui(e, tmp_n1, 2); //    e   <- (n-1)/2
 	
 	//Boucle du test
 	for (int i = 0; i < k;i++){
 		mpz_set(tmp_n,n);
-		mpz_urandomm(rand_num, rand, tmp_n3);
-		mpz_add_ui(rand_num, rand_num, 2);
+		mpz_urandomm(rand_num, rand, tmp_n3); //génération d'un nombre aléatoire entre 0 et n-3
+		mpz_add_ui(rand_num, rand_num, 2);  // on ajoute 2 pour revenir entre 2 et n-1
 		mpz_set(tmp_r,rand_num);
-		r = jacobi(tmp_r, tmp_n);
-		square_and_mult(sqr, rand_num, n, e);
+		r = jacobi(tmp_r, tmp_n); // r <- symbole de jacobi   
+		square_and_mult_mod(sqr, rand_num, n, e); //sqr <- resultat de l'exponentation modulaire
+		// si r vaut 0  ou r =/= sqr mod n ie (r=1 et sqr = 1)  ou (r = -1 et sqr = n-1)
 		if(r == 0 ||    (r==1 && (mpz_cmp_ui(sqr, 1) != 0)) || (r==-1 &&(mpz_cmp(sqr, tmp_n1) != 0))){
 			mpz_clears(rand_num, sqr, e, tmp_n, tmp_n1, tmp_n3, tmp_r, NULL);
 			gmp_randclear(rand);
-		       	return 0;
+		       	return 0; // composé
 		}
 	}
 	mpz_clears(rand_num, sqr, e, tmp_n, tmp_n1, tmp_n3, tmp_r, NULL);
 	gmp_randclear(rand);
-	return 1;
+	return 1; // premier
 }
 
 int main(int argc, char** argv){
 	//Initialisation des variables pour la récupération des options
 	int k = 10, optch, optindex = 0;
-	char *nb;
-	char* short_option = "n:k:h";
+	char* nb;
+	char* e;
+	char* short_option = "n:k:ht:";
 	const struct option long_option[] = {
 		{"number", 1, NULL, 'n'},
 		{"itteration", 1, NULL, 'k'},
-		{"help", 0, NULL, 'h'}
+		{"help", 0, NULL, 'h'},
+		{"two",1,NULL,'t'}
 	};
 	//récupération des options passés par l'utilisatieur
 	while((optch = getopt_long(argc, argv, short_option, long_option, &optindex)) != -1){
@@ -75,9 +78,39 @@ int main(int argc, char** argv){
 				help();
 				return 0;
 				break;
+			case 't':
+				e=optarg;
+				break;
 		}
 	}
 
+	
+	if(e){
+	//Initialisation des variables 	
+	mpz_t pow,n,two;
+	mpz_init(pow);
+	mpz_init(n);
+	mpz_init(two);
+	mpz_set_ui(two,2);
+		if (mpz_set_str(pow, e , 10)){
+			mpz_clears(pow,n,two);
+		return fprintf(stderr,"Nombre invalide\n"), -1;
+		}
+	// calcul de (n²)-1
+	square_and_mult(n,two,pow);
+	mpz_sub_ui(n,n,1);
+	//Appel de l'algorithme de Solovay-Strassen
+	if(solovay_strassen(n, k))
+		printf("Le nombre est premier\n");
+	else
+		printf("Le nombre n'est pas premier\n");
+		mpz_clears(pow,two,n, NULL);
+	return 0; 
+			
+	}
+	
+
+	else{
 	//Initialisation de la variable gmp
 	mpz_t n;
 	mpz_init(n);
@@ -93,5 +126,6 @@ int main(int argc, char** argv){
 		printf("Le nombre n'est pas premier\n");
 	mpz_clear(n);
 	return 0;
+	}
 }
 	

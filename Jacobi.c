@@ -17,12 +17,12 @@ void pgcd(mpz_t res, mpz_t n, mpz_t d){
 	mpz_set(tmp_d, d);
 	// Calcul du pgcd avec la propriété pgcd(n,d) = pgcd(d, n mod d)
 	do{
-		mpz_mod(res, tmp_n, tmp_d);
-		mpz_set(tmp_n, tmp_d);
-		mpz_set(tmp_d, res);
-
+		mpz_mod(res, tmp_n, tmp_d); // res <- n mod d
+		mpz_set(tmp_n, tmp_d);      // n <- d
+		mpz_set(tmp_d, res);		// d <- res
+	//tant que res != 0 	
 	}while(mpz_cmp_ui(res,0) != 0);
-	mpz_set(res, tmp_n);
+	mpz_set(res, tmp_n);  //res <- n
 	mpz_clear(tmp_n);
 	mpz_clear(tmp_d);
 }
@@ -40,16 +40,17 @@ int etape2(mpz_t m, mpz_t n){
 	mpz_t tmp;
 	int nb_pow = 0; //le nombre de puissance de 2 par lequel on peut décomposer m
 	mpz_init(tmp);
+	// tant que m mod 2 = 0
 	while(mpz_mod_ui(tmp, m, 2) == 0){
-		mpz_cdiv_q_ui(m, m, 2);
+		mpz_cdiv_q_ui(m, m, 2); // m <- m/2
 		nb_pow++;
-	}
+	}	// si (n mod 8 = 3  ou  n mod 8 = 5)  et nb_pow n'est pas multiple de 2 
 	if((mpz_mod_ui(tmp, n, 8) == 3 || mpz_mod_ui(tmp, n, 8) == 5) && nb_pow%2 == 1){
 		mpz_clear(tmp);
-		return -1;
+		return -1; //signe négatif
 	}
 	mpz_clear(tmp);
-	return 1;
+	return 1; //signe positif
 }
 
 /* Calcule le symbole de Jacobi
@@ -59,22 +60,23 @@ int etape2(mpz_t m, mpz_t n){
  * */
 int jacobi(mpz_t m, mpz_t n){
 	//Initialisation
-	int sign = 1; //le signe de jacobi pour l'étape 2
-	mpz_t tmp;
+	int signe = 1; //le signe de jacobi utilisé pour les appels récursifs
+	mpz_t tmp; 
 	mpz_init(tmp);
 
 	//m=m mod m   etape 1
 	mpz_mod(m,m,n);
 	
 	//étape 2
+	// si m mod 2 = 0 
 	if(mpz_mod_ui(tmp,m,2)==0)
-		sign =  etape2(m,n);
+		signe =  etape2(m,n);
 	
 	//etape 3
 	//si m == 1 jacobi = 1
 	if (mpz_cmp_ui(m,1)==0){
 		mpz_clear(tmp);	
-		return sign*1;
+		return signe*1;
 	}
 	//si m et n ne sont pas premiers entre eux, jacobi = 0
 	pgcd(tmp, m, n);
@@ -85,13 +87,14 @@ int jacobi(mpz_t m, mpz_t n){
 	
 	//étape 4
 	//rappel récursivement la fonction jacobi en inversant n et m
+	//si  n mod 4 = 1  ou  m mod 4 = 1, le signe de change pas
 	if ((mpz_mod_ui(tmp,n,4) == 1) || (mpz_mod_ui(tmp,m,4) == 1)){
 		mpz_clear(tmp);	
-		return sign*jacobi(n,m);
-	}
+		return signe*jacobi(n,m);
+	}// sinon le signe change 
 	else {
 		mpz_clear(tmp);	
-		return -1*sign*jacobi(n,m);
+		return -1*signe*jacobi(n,m);
 	}
 }
 		
