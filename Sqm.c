@@ -7,11 +7,9 @@
 * a : entier
 * n : le module
 * e : l'exposant
-*
 */
 void square_and_mult_mod(mpz_t r, mpz_t a, mpz_t n, mpz_t e){
-	// r <- a
-	mpz_set(r,a);
+	mpz_set(r,a); //r <- a
 	mp_bitcnt_t bi; //compteur pour le parcours des bits de l'exposant
 	
 	//parcours de l'exposant en binaire 
@@ -28,21 +26,15 @@ void square_and_mult_mod(mpz_t r, mpz_t a, mpz_t n, mpz_t e){
 			mpz_mod(r,r,n);
 		}
 	}
-
-
 }
-
 
 /* Fonction de calcul d'exponentiation square and multiply
 * r : resultat intermédiaire puis final 
 * a : entier
 * e : l'exposant
-*
 */
 void square_and_mult(mpz_t r, mpz_t a, mpz_t e){
-	// r <- a
-
-	mpz_set(r,a);
+	mpz_set(r,a); // r <- a
 	mp_bitcnt_t bi; //compteur pour le parcours des bits de l'exposant
 	
 	//parcours de l'exposant en binaire 
@@ -50,16 +42,11 @@ void square_and_mult(mpz_t r, mpz_t a, mpz_t e){
 		
 		// r <- r² 
 		mpz_mul(r,r,r);
-
-		
 		
 		// si le bit bi de l'exposant vaut 1
 		if(mpz_tstbit(e,bi-1)==1){
 			// r <- r*a  
 			mpz_mul(r,r,a);
-			
 		}
 	}
-
-
 }

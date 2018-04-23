@@ -6,31 +6,28 @@
 /* Fonction qui calcule le pgcd
  * Elle prend en argument :
  * res : le résultat du pgcd
- * n et d : les deux nombres pour lesquels le pgcd est calculé 
+ * n et d : les deux entiers pour lesquels le pgcd est calculé 
  * */
 void pgcd(mpz_t res, mpz_t n, mpz_t d){
 	//Initialisation
 	mpz_t tmp_n, tmp_d;
-	mpz_init(tmp_n);
-	mpz_init(tmp_d);
+	mpz_inits(tmp_n, tmp_d, NULL);
 	mpz_set(tmp_n, n);
 	mpz_set(tmp_d, d);
-	// Calcul du pgcd avec la propriété pgcd(n,d) = pgcd(d, n mod d)
+	// Calcul du pgcd avec la propriété pgcd(n,d) = pgcd(d, n mod d) tant que (n mod d != 0)
 	do{
 		mpz_mod(res, tmp_n, tmp_d); // res <- n mod d
 		mpz_set(tmp_n, tmp_d);      // n <- d
 		mpz_set(tmp_d, res);		// d <- res
-	//tant que res != 0 	
 	}while(mpz_cmp_ui(res,0) != 0);
 	mpz_set(res, tmp_n);  //res <- n
-	mpz_clear(tmp_n);
-	mpz_clear(tmp_d);
+	mpz_clears(tmp_n, tmp_d, NULL);
 }
 
 /* L'étape 2 de l'agorithme pour calculer le symbole de Jacobi.
  * Elle décompose l'entier m en facteur de 2 (propriété 2)
  * puis simplifie le symbole de Jacobi à l'aide de la propriété 5.
- * n et m sont les deux nombre qui compose le symbole de Jacobi (m/n).
+ * n et m sont les deux nombres qui composent le symbole de Jacobi (m/n).
  * Elle renvoie le signe que donne la simplification de la propriété 5 : 1 ou -1.
  * La variable m est également modifiée :  elle est le résultat de la simplification
  * par une puissance de 2. 
@@ -54,7 +51,7 @@ int etape2(mpz_t m, mpz_t n){
 }
 
 /* Calcule le symbole de Jacobi
- * m et n sont les entiers qui compose le symbole de Jacobi
+ * m et n sont les entiers qui composent le symbole de Jacobi
  * La fonction renvoie la valeur du symbole de Jacobi
  * Attention m et n sont modifiés par la fonction. 
  * */

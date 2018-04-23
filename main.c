@@ -8,11 +8,14 @@
 /* Fonction qui affiche l'aide sur la sortie standard. */
 void help(){
 	printf("\t-n, --number \n\t\t Le nombre à tester avec l'algorithme de Solovay-Strassen\n"
-		"\t -k, --itteration (optionnel)\n\t\t Le nombre d'ittérations pour l'execution algorithme. Il est initialisé à 10 de base.\n");
+		"\t -k, --itteration (optionnel)\n\t\t Le nombre d'ittérations pour l'execution algorithme. Il est initialisé à 10 de base.\n"
+		"\t-t ou --two, suivie d'un nombre x : calcul (2^x)-1 et vérifie sa primalité (utile pour les très grands nombres)," 
+		" l'option -t écrase l'option -n si utilisé en même temps");
+		
 }
 
-/* Algorithme de Solovay-Strassen qui test de manière heuristique
- * si un nombre est premier.
+/* Algorithme de Solovay-Strassen qui teste de manière heuristique
+ * si un entier est premier.
  * n est le nombre à tester.
  * k est le nombre d'ittérations de la boucle.
  * retourne 0 si le nombre n'est pas premier.
@@ -53,7 +56,7 @@ int main(int argc, char** argv){
 	//Initialisation des variables pour la récupération des options
 	int k = 10, optch, optindex = 0;
 	char* nb;
-	char* e;
+	char* e = NULL;
 	char* short_option = "n:k:ht:";
 	const struct option long_option[] = {
 		{"number", 1, NULL, 'n'},
@@ -85,47 +88,45 @@ int main(int argc, char** argv){
 	}
 
 	
-	if(e){
-	//Initialisation des variables 	
-	mpz_t pow,n,two;
-	mpz_init(pow);
-	mpz_init(n);
-	mpz_init(two);
-	mpz_set_ui(two,2);
+	if(e != NULL){
+		//Initialisation des variables 	
+		mpz_t pow,n,two;
+		mpz_inits(pow, n, two, NULL);
+		mpz_set_ui(two,2);
 		if (mpz_set_str(pow, e , 10)){
-			mpz_clears(pow,n,two);
-		return fprintf(stderr,"Nombre invalide\n"), -1;
+			mpz_clears(pow,n,two, NULL);
+			return fprintf(stderr,"Nombre invalide\n"), -1;
 		}
-	// calcul de (n²)-1
-	square_and_mult(n,two,pow);
-	mpz_sub_ui(n,n,1);
-	//Appel de l'algorithme de Solovay-Strassen
-	if(solovay_strassen(n, k))
-		printf("Le nombre est premier\n");
-	else
-		printf("Le nombre n'est pas premier\n");
+		// calcul de (n²)-1
+		square_and_mult(n,two,pow);
+		mpz_sub_ui(n,n,1);
+		//Appel de l'algorithme de Solovay-Strassen
+		if(solovay_strassen(n, k))
+			printf("Le nombre est premier\n");
+		else
+			printf("Le nombre n'est pas premier\n");
 		mpz_clears(pow,two,n, NULL);
-	return 0; 
+		return 0; 
 			
 	}
 	
 
 	else{
-	//Initialisation de la variable gmp
-	mpz_t n;
-	mpz_init(n);
+		//Initialisation de la variable gmp
+		mpz_t n;
+		mpz_init(n);
 
-	//Appel de l'agorithme de Solovay-Strassen
-	if(mpz_set_str(n, nb , 10)){
+		//Appel de l'agorithme de Solovay-Strassen
+		if(mpz_set_str(n, nb , 10)){
+			mpz_clear(n);
+			return fprintf(stderr,"Nombre invalide\n"), -1;
+		}
+		if(solovay_strassen(n, k))
+			printf("Le nombre est premier\n");
+		else
+			printf("Le nombre n'est pas premier\n");
 		mpz_clear(n);
-		return fprintf(stderr,"Nombre invalide\n"), -1;
-	}
-	if(solovay_strassen(n, k))
-		printf("Le nombre est premier\n");
-	else
-		printf("Le nombre n'est pas premier\n");
-	mpz_clear(n);
-	return 0;
+		return 0;
 	}
 }
 	
